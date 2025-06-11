@@ -20,13 +20,15 @@ fn validate(xs: &Vec<f64>, ys: &Vec<f64>) -> PyResult<()> {
 #[pyfunction]
 fn mk(xs: Vec<f64>, ys: Vec<f64>) -> PyResult<(f64, f64)> {
     validate(&xs, &ys)?;
-    Ok(slope::mk(&xs[..], &ys[..]))
+    let (p, slope) = slope::mk(&xs[..], &ys[..]);
+    Ok((slope, p))
 }
 
 #[pyfunction]
 fn linreg(xs: Vec<f64>, ys: Vec<f64>) -> PyResult<(f64, f64)> {
     validate(&xs, &ys)?;
-    Ok(slope::linreg(&xs[..], &ys[..]))
+    let (p, slope) = slope::linreg(&xs[..], &ys[..]);
+    Ok((slope, p))
 }
 
 /// A Python module implemented in Rust. The name of this function must match
