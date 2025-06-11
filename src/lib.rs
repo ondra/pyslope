@@ -1,27 +1,32 @@
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
 
-pub use slope::mk;
-pub use slope::linreg;
-
+const VERSION: &str = git_version::git_version!(args=["--tags", "--always", "--dirty"]);
 #[pyfunction]
-#[pyo3(name = "mk")]
-fn mk_py(xs: Vec<f64>, ys: Vec<f64>) -> PyResult<(f64, f64)> {
+fn version() -> PyResult<String> {
+    Ok(VERSION.to_string())
+}
+
+fn validate(xs: &Vec<f64>, ys: &Vec<f64>) -> PyResult<()> {
+    if xs.len() < 2 {
+        return Err(PyValueError::new_err("xs and ys must contain at least 2 values"));
+    }
     if xs.len() != ys.len() {
         return Err(PyValueError::new_err("xs and ys do not have identical lengths"));
     }
-    let (slope, p) = mk(&xs[..], &ys[..]);
-    Ok((slope, p))
+    Ok(())
 }
 
 #[pyfunction]
-#[pyo3(name = "linreg")]
-fn linreg_py(xs: Vec<f64>, ys: Vec<f64>) -> PyResult<(f64, f64)> {
-    if xs.len() != ys.len() {
-        return Err(PyValueError::new_err("xs and ys do not have identical lengths"));
-    }
-    let (slope, p) = linreg(&xs[..], &ys[..]);
-    Ok((slope, p))
+fn mk(xs: Vec<f64>, ys: Vec<f64>) -> PyResult<(f64, f64)> {
+    validate(&xs, &ys)?;
+    Ok(slope::mk(&xs[..], &ys[..]))
+}
+
+#[pyfunction]
+fn linreg(xs: Vec<f64>, ys: Vec<f64>) -> PyResult<(f64, f64)> {
+    validate(&xs, &ys)?;
+    Ok(slope::linreg(&xs[..], &ys[..]))
 }
 
 /// A Python module implemented in Rust. The name of this function must match
@@ -29,7 +34,8 @@ fn linreg_py(xs: Vec<f64>, ys: Vec<f64>) -> PyResult<(f64, f64)> {
 /// import the module.
 #[pymodule(name = "slope")]
 fn pyslope(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(mk_py, m)?)?;
-    m.add_function(wrap_pyfunction!(linreg_py, m)?)?;
+    m.add_function(wrap_pyfunction!(mk, m)?)?;
+    m.add_function(wrap_pyfunction!(linreg, m)?)?;
+    m.add_function(wrap_pyfunction!(version, m)?)?;
     Ok(())
 }
