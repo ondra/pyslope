@@ -31,6 +31,20 @@ fn linreg(xs: Vec<f64>, ys: Vec<f64>) -> PyResult<(f64, f64)> {
     Ok((slope, p))
 }
 
+#[pyfunction]
+fn mk_intercept(xs: Vec<f64>, ys: Vec<f64>) -> PyResult<(f64, f64, f64)> {
+    validate(&xs, &ys)?;
+    let (p, slope, intercept) = slope::mk_intercept(&xs[..], &ys[..]);
+    Ok((intercept, slope, p))
+}
+
+#[pyfunction]
+fn linreg_intercept(xs: Vec<f64>, ys: Vec<f64>) -> PyResult<(f64, f64, f64)> {
+    validate(&xs, &ys)?;
+    let (p, slope, intercept) = slope::linreg_intercept(&xs[..], &ys[..]);
+    Ok((intercept, slope, p))
+}
+
 /// A Python module implemented in Rust. The name of this function must match
 /// the `lib.name` setting in the `Cargo.toml`, else Python will not be able to
 /// import the module.
@@ -38,6 +52,8 @@ fn linreg(xs: Vec<f64>, ys: Vec<f64>) -> PyResult<(f64, f64)> {
 fn pyslope(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(mk, m)?)?;
     m.add_function(wrap_pyfunction!(linreg, m)?)?;
+    m.add_function(wrap_pyfunction!(mk_intercept, m)?)?;
+    m.add_function(wrap_pyfunction!(linreg_intercept, m)?)?;
     m.add_function(wrap_pyfunction!(version, m)?)?;
     Ok(())
 }
