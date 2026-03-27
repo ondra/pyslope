@@ -12,10 +12,9 @@ Build the extension module with Cargo:
 cargo build --release
 ```
 
-The raw Cargo-built library is named `libpyslope.so` on Linux. Python imports this module as `slope`, so the shared library must be available under the importable module name for the import to work.
+The raw Cargo-built library is named `libpyslope.so` on Linux. Python imports this module as `slope`, so the shared library must be available under the importable module name.
 
-The most portable approach is to rename or copy the library to `slope` plus
-Python's extension suffix (`.so` on Linux) and place it into the directory with your program or on `PYTHONPATH`:
+To make the import work, link or copy the library from `./target/release/libpyslope.so` to `slope.so` and place it into the directory with your program or on `PYTHONPATH`:
 
 ## Python API
 
